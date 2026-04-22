@@ -98,6 +98,16 @@ openssl rand -base64 32
 JWT_SECRET=xK3mP9...
 ```
 
+### 6. `DISABLE_AUTH_IN_DEV` — Desativar auth localmente
+
+Use apenas no ambiente local para abrir o projeto sem login:
+
+```
+DISABLE_AUTH_IN_DEV=true
+```
+
+Essa flag só funciona fora de produção. Em produção, a autenticação continua ativa mesmo que a variável esteja definida.
+
 ---
 
 ## Rodar localmente
@@ -107,7 +117,7 @@ npm run dev
 ```
 
 Acessa em [http://localhost:3000](http://localhost:3000).
-O middleware redireciona para `/login` se não houver sessão válida.
+O proxy redireciona para `/login` se não houver sessão válida, exceto quando `DISABLE_AUTH_IN_DEV=true` estiver ativo em desenvolvimento.
 
 ---
 
@@ -149,5 +159,5 @@ components/
   sections/           — Hero, ProblemImage, Problem, Discovery, Tradeoff,
                         Solution, Prototype, AuditWireframe, Results
   ui/                 — AnimatedCounter, AnimatedWords, Stepper, AuditFilter
-middleware.ts         — protege todas as rotas exceto /login e /api/auth/*
+proxy.ts              — protege todas as rotas exceto /login e /api/auth/*
 ```

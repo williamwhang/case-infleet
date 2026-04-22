@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
+const isAuthDisabledInDev =
+  process.env.NODE_ENV !== "production" &&
+  process.env.DISABLE_AUTH_IN_DEV === "true";
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -9,6 +13,10 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth/")
   ) {
+    return NextResponse.next();
+  }
+
+  if (isAuthDisabledInDev) {
     return NextResponse.next();
   }
 
