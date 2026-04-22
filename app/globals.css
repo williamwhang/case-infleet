@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-canvas: #ffffff;
+  --color-surface: #f8f8f6;
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-rim: #e8e8e6;
+  --color-accent: #EF9F27;
+  --color-emerald: #1D9E75;
+  --color-crimson: #E24B4A;
+
+  /* Fonts */
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-lora);
+
+  /* Max widths */
+  --width-content: 680px;
+
+  /* Border radius */
+  --radius-base: 8px;
+  --radius-card: 12px;
+
+  /* Border width */
+  --border-width-thin: 0.5px;
+}
+
+/* ── Sirnik-style fluid type scale ────────────────────
+   Base: 0.93vw — scales with viewport.
+   1rem ≈ 13.4px @ 1440px | 15px @ 1613px | 16px @ 1720px
+   clamp keeps min 14px so preview/tablet stay readable.
+──────────────────────────────────────────────────── */
+html {
+  font-size: clamp(14px, 0.93vw, 16px);
+}
+
+@media (min-width: 1920px) {
+  html { font-size: 0.83vw; } /* ≈ 15.9px @ 1920px */
+}
+
+@media (max-width: 767px) {
+  html { font-size: 16px; } /* fixed on mobile */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* SectionNav — só visível acima de 900px */
+.hidden-mobile {
+  display: flex;
+}
+@media (max-width: 900px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
