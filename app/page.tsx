@@ -4,14 +4,15 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from "next/image";
 
 const navItems = [
-  ["cover", "Hero"],
-  ["overview", "Sobre"],
-  ["crise", "A crise"],
-  ["camadas", "Cinco camadas"],
-  ["governanca", "Governar primeiro"],
-  ["pendencias", "Pendências"],
-  ["decisao", "A decisão"],
-  ["resultado", "De dias para horas"],
+  ["sec-00", "cover", "Hero"],
+  ["sec-01", "overview", "Sobre"],
+  ["sec-02", "crise", "A crise"],
+  ["sec-05", "camadas", "Cinco camadas"],
+  ["sec-06", "governanca", "Governar primeiro"],
+  ["sec-07", "pendencias", "Pendências"],
+  ["sec-08", "decisao", "A decisão"],
+  ["sec-09", "tradeoffs", "O que recusamos"],
+  ["sec-10", "resultado", "De dias para horas"],
 ];
 
 const tags = ["Gestão de Frotas", "B2B SaaS", "IA + Hardware", "Enterprise", "Solo Designer"];
@@ -21,6 +22,52 @@ const facts = [
   ["Modelo", "SaaS B2B para gestão de frotas"],
   ["Tempo", "12 semanas"],
   ["Papel", "Product Design, discovery técnico e arquitetura de estados"],
+];
+
+const projectMeta = [
+  {
+    label: "Empresa",
+    content: <strong>infleet.com.br</strong>,
+  },
+  {
+    label: "Modelo",
+    content: <strong>SaaS B2B · Gestão de Frotas Enterprise</strong>,
+  },
+  {
+    label: "Time",
+    content: (
+      <ul>
+        <li>Product Manager</li>
+        <li>Product Designer</li>
+        <li>Tech Lead</li>
+        <li>Back-end e Front-end</li>
+        <li>Equipe de Hardware</li>
+        <li>Stakeholders</li>
+      </ul>
+    ),
+  },
+  {
+    label: "Indústria",
+    content: <strong>Segurança e Telemetria Veicular</strong>,
+  },
+  {
+    label: "Duração",
+    content: (
+      <>
+        <strong>12 semanas</strong>
+        <span>4 discovery + 8 build</span>
+      </>
+    ),
+  },
+  {
+    label: "Status",
+    content: (
+      <>
+        <strong>Lançado para 2 clientes enterprise estratégicos</strong>
+        <span>Contratos em risco protegidos dentro do prazo</span>
+      </>
+    ),
+  },
 ];
 
 const metrics = [
@@ -42,6 +89,12 @@ const states = [
   ["Baixa confiança", "A IA sugeria um motorista, mas exigia revisão humana."],
   ["Sem foto", "O sistema não recebeu evidência visual válida para análise."],
   ["Desconhecido", "Nenhum motorista conhecido pôde ser associado à viagem."],
+];
+
+const tradeoffs = [
+  ["Validação em massa", "Parecia eficiente, mas aumentava o risco de confirmar falsos positivos em escala."],
+  ["Automação total", "Não havia confiança técnica suficiente para remover revisão humana do fluxo."],
+  ["Esperar a IA amadurecer", "A resposta técnica levaria meses e os contratos em risco precisavam de uma resposta operacional imediata."],
 ];
 
 function LogoMark() {
@@ -115,29 +168,57 @@ function AwareButton({
 }
 
 export default function Portfolio() {
-  const [activeSection, setActiveSection] = useState("cover");
+  const [activeSection, setActiveSection] = useState("sec-00");
   const footerInnerRef = useRef<HTMLDivElement>(null);
   const sidebarFooterRef = useRef<HTMLDivElement>(null);
+  const isProgrammaticScrollRef = useRef(false);
+  const scrollSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const sectionIndex = Math.max(0, navItems.findIndex(([id]) => id === activeSection));
+  const sectionIndex = Math.max(0, navItems.findIndex(([targetId]) => targetId === activeSection));
   const total = navItems.length;
 
+  function setActiveTarget(targetId: string) {
+    setActiveSection(targetId);
+    if (sidebarFooterRef.current) {
+      sidebarFooterRef.current.classList.toggle("is-visible", targetId !== "sec-00");
+    }
+  }
+
   useEffect(() => {
-    const elements = navItems
-      .map(([id]) => document.getElementById(id))
-      .filter(Boolean) as HTMLElement[];
+    let frame: number | null = null;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { threshold: 0.25, rootMargin: "-10% 0px -60% 0px" }
-    );
+    const syncActiveSectionFromScroll = () => {
+      const viewportMidpoint = window.innerHeight * 0.35;
+      let closestTargetId = navItems[0][0];
+      let smallestDistance = Number.POSITIVE_INFINITY;
 
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+      navItems.forEach(([targetId, elementId]) => {
+        const panel = document.getElementById(elementId);
+        if (!panel) return;
+        const distance = Math.abs(panel.getBoundingClientRect().top - viewportMidpoint);
+        if (distance < smallestDistance) {
+          smallestDistance = distance;
+          closestTargetId = targetId;
+        }
+      });
+
+      setActiveTarget(closestTargetId);
+    };
+
+    const onScroll = () => {
+      if (isProgrammaticScrollRef.current) return;
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(syncActiveSectionFromScroll);
+    };
+
+    syncActiveSectionFromScroll();
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      if (scrollSyncTimeoutRef.current) clearTimeout(scrollSyncTimeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -158,6 +239,29 @@ export default function Portfolio() {
     return () => observer.disconnect();
   }, []);
 
+  function navigateTo(targetId: string, elementId: string) {
+    const panel = document.getElementById(elementId);
+    if (!panel) return;
+
+    setActiveTarget(targetId);
+    isProgrammaticScrollRef.current = true;
+
+    const sectionOffset = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--section-offset")
+    ) || 96;
+    const nextTop = window.scrollY + panel.getBoundingClientRect().top - sectionOffset;
+
+    window.scrollTo({
+      top: Math.max(0, nextTop),
+      behavior: "smooth",
+    });
+
+    if (scrollSyncTimeoutRef.current) clearTimeout(scrollSyncTimeoutRef.current);
+    scrollSyncTimeoutRef.current = setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+    }, 500);
+  }
+
   return (
     <main className="case-shell">
       <aside className="case-sidebar" aria-label="Navegação do case">
@@ -167,9 +271,16 @@ export default function Portfolio() {
         </div>
 
         <nav className="case-nav">
-          {navItems.map(([href, label]) => (
-            <a key={href} href={`#${href}`}>
-              <span className={activeSection === href ? "is-active" : ""} />
+          {navItems.map(([targetId, elementId, label]) => (
+            <a
+              key={targetId}
+              href={`#${elementId}`}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateTo(targetId, elementId);
+              }}
+            >
+              <span className={activeSection === targetId ? "is-active" : ""} />
               {label}
             </a>
           ))}
@@ -221,9 +332,7 @@ export default function Portfolio() {
             <button
               aria-label="Rolar para baixo"
               onClick={() =>
-                document
-                  .getElementById("overview")
-                  ?.scrollIntoView({ behavior: "smooth" })
+                navigateTo("sec-01", "overview")
               }
             >
               ↓
@@ -248,38 +357,36 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="overview" className="case-panel case-cover-panel">
-          <div className="case-cover-grid">
-            <div className="case-cover-text">
-              <SectionTitle
-                eyebrow="Sobre"
-                title="Um produto precisava continuar operando mesmo quando a IA falhava."
-              >
-                <p>
-                  A identificação automática de motoristas era crítica para
-                  auditoria, segurança e responsabilização. O problema não era
-                  apenas melhorar um modelo: era criar uma camada operacional
-                  que tornasse a falha visível, compreensível e acionável.
-                </p>
-              </SectionTitle>
-            </div>
+        <section id="overview" className="case-panel case-project-panel">
+          <div className="case-project-heading">
+            <span>02 · Sobre o projeto</span>
+            <h2>Doze semanas para tornar o sistema confiável</h2>
+          </div>
 
-            <figure className="case-laptop">
-              <Image
-                src="/assets/Laptop.png"
-                alt="Dashboard do case exibido em um laptop"
-                width={1400}
-                height={900}
-                priority
-                unoptimized
-              />
-            </figure>
+          <div className="case-project-grid">
+            {projectMeta.map((item) => (
+              <article key={item.label} className="case-project-item">
+                <span>{item.label}</span>
+                <div>{item.content}</div>
+              </article>
+            ))}
+
+            <article className="case-project-item case-project-item-wide case-project-role">
+              <span>Meu papel</span>
+              <span className="case-project-paragraph">
+                Único designer no projeto, do mapeamento até o lançamento.
+                Defendi junto ao PM e à engenharia que esperar a IA amadurecer
+                levaria meses sem garantia de resultado, a estratégia certa era
+                construir a governança operacional que tornasse o sistema
+                confiável com a tecnologia disponível.
+              </span>
+            </article>
           </div>
         </section>
 
         <section id="crise" className="case-panel">
           <SectionTitle
-            eyebrow="A crise"
+            eyebrow="03 · A crise"
             title="O reconhecimento facial não entregava confiança suficiente para sustentar decisões operacionais."
           />
 
@@ -310,7 +417,7 @@ export default function Portfolio() {
 
         <section id="camadas" className="case-panel">
           <SectionTitle
-            eyebrow="Cinco camadas"
+            eyebrow="04 · Cinco camadas"
             title="Mapeamos a falha como sistema, não como evento isolado."
           />
           <div className="case-layer-list">
@@ -325,7 +432,7 @@ export default function Portfolio() {
 
         <section id="governanca" className="case-panel">
           <SectionTitle
-            eyebrow="Governar primeiro"
+            eyebrow="05 · Governar primeiro"
             title="A decisão foi projetar estados claros antes de perseguir automação total."
           />
 
@@ -351,7 +458,7 @@ export default function Portfolio() {
 
         <section id="pendencias" className="case-panel">
           <SectionTitle
-            eyebrow="Pendências"
+            eyebrow="06 · Pendências"
             title="A interface passou a explicar o que precisava de ação humana."
           />
 
@@ -380,7 +487,7 @@ export default function Portfolio() {
 
         <section id="decisao" className="case-panel">
           <SectionTitle
-            eyebrow="A decisão"
+            eyebrow="07 · A decisão"
             title="Recusamos validação em massa no primeiro momento."
           />
 
@@ -400,9 +507,25 @@ export default function Portfolio() {
           </div>
         </section>
 
+        <section id="tradeoffs" className="case-panel">
+          <SectionTitle
+            eyebrow="08 · O que recusamos"
+            title="Nem toda solução aparentemente eficiente era segura para o momento do produto."
+          />
+
+          <div className="case-tradeoff-list">
+            {tradeoffs.map(([title, description]) => (
+              <article key={title}>
+                <span>{title}</span>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section id="resultado" className="case-panel case-final-panel">
           <SectionTitle
-            eyebrow="Resultado"
+            eyebrow="09 · O resultado"
             title="A solução transformou uma falha invisível em uma rotina operacional auditável."
           />
 
