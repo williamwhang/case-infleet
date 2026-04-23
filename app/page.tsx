@@ -357,7 +357,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="overview" className="case-panel case-project-panel">
+        <section id="overview" className="case-panel case-project-panel case-body">
           <div className="case-project-heading">
             <span>02 · Sobre o projeto</span>
             <h2>Doze semanas para tornar o sistema confiável</h2>
@@ -373,18 +373,18 @@ export default function Portfolio() {
 
             <article className="case-project-item case-project-item-wide case-project-role">
               <span>Meu papel</span>
-              <span className="case-project-paragraph">
+              <p className="case-project-paragraph case-body">
                 Único designer no projeto, do mapeamento até o lançamento.
                 Defendi junto ao PM e à engenharia que esperar a IA amadurecer
                 levaria meses sem garantia de resultado, a estratégia certa era
                 construir a governança operacional que tornasse o sistema
                 confiável com a tecnologia disponível.
-              </span>
+              </p>
             </article>
           </div>
         </section>
 
-        <section id="crise" className="case-panel">
+        <section id="crise" className="case-panel case-body">
           <SectionTitle
             eyebrow="03 · A crise"
             title="O reconhecimento facial não entregava confiança suficiente para sustentar decisões operacionais."
@@ -415,7 +415,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="camadas" className="case-panel">
+        <section id="camadas" className="case-panel case-body">
           <SectionTitle
             eyebrow="04 · Cinco camadas"
             title="Mapeamos a falha como sistema, não como evento isolado."
@@ -430,7 +430,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="governanca" className="case-panel">
+        <section id="governanca" className="case-panel case-body">
           <SectionTitle
             eyebrow="05 · Governar primeiro"
             title="A decisão foi projetar estados claros antes de perseguir automação total."
@@ -456,7 +456,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="pendencias" className="case-panel">
+        <section id="pendencias" className="case-panel case-body">
           <SectionTitle
             eyebrow="06 · Pendências"
             title="A interface passou a explicar o que precisava de ação humana."
@@ -485,7 +485,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="decisao" className="case-panel">
+        <section id="decisao" className="case-panel case-body">
           <SectionTitle
             eyebrow="07 · A decisão"
             title="Recusamos validação em massa no primeiro momento."
@@ -507,7 +507,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="tradeoffs" className="case-panel">
+        <section id="tradeoffs" className="case-panel case-body">
           <SectionTitle
             eyebrow="08 · O que recusamos"
             title="Nem toda solução aparentemente eficiente era segura para o momento do produto."
@@ -523,7 +523,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section id="resultado" className="case-panel case-final-panel">
+        <section id="resultado" className="case-panel case-final-panel case-body">
           <SectionTitle
             eyebrow="09 · O resultado"
             title="A solução transformou uma falha invisível em uma rotina operacional auditável."

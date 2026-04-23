@@ -173,6 +173,8 @@ img {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: auto;
+  padding-bottom: 34px;
 }
 
 /* Tagline — começa oculta, aparece quando footer entra no viewport */
@@ -207,6 +209,7 @@ img {
 .case-sidebar-footer small {
   font-size: 12px;
   color: #8d8d8d;
+  line-height: 1.35;
 }
 
 /* ── Divider ─────────────────────────────────────── */
@@ -435,7 +438,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 0 28px 34px;
+  padding: 0 28px 34px 28px;
 }
 
 .case-tags {
@@ -488,9 +491,13 @@ img {
 
 .case-panel {
   min-height: 100vh;
-  padding: 46px 40px 52px;
+  padding: 28px;
   scroll-margin-top: var(--section-offset);
   background: var(--case-bg);
+}
+
+.case-project-panel {
+  padding-top: 28px;
 }
 
 .case-section-header {
@@ -522,7 +529,29 @@ img {
   margin-top: 14px;
   color: #333;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.case-body {
+  font-size: 15px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--case-body, #3a3a3a);
+}
+
+.case-body p,
+.case-body li,
+.case-body span:not(.case-project-heading > span):not(.case-project-item > span):not(.case-project-role > span) {
+  color: var(--case-body, #3a3a3a);
+}
+
+.case-body .case-muted {
+  color: var(--case-body-muted, #6b6b6b);
+}
+
+.case-body .case-label {
+  color: var(--case-body-label, #999);
 }
 
 /* ── Project Panel ───────────────────────────────── */
@@ -544,7 +573,7 @@ img {
 .case-project-heading > span,
 .case-project-item > span,
 .case-project-role > span {
-  color: #999;
+  color: var(--case-body-label, #999);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -578,14 +607,11 @@ img {
   flex-direction: column;
   gap: 4px;
   margin-top: 7px;
-  color: #666;
-  font-size: 1rem;
-  line-height: 1.35;
-  letter-spacing: -0.012em;
+  color: var(--case-body, #3a3a3a);
 }
 
 .case-project-item strong {
-  color: #111;
+  color: var(--case-body, #3a3a3a);
   font-weight: 600;
 }
 
@@ -600,10 +626,7 @@ img {
 
 .case-project-item li,
 .case-project-item > div span {
-  color: #666;
-  font-size: 1rem;
-  line-height: 1.42;
-  letter-spacing: -0.012em;
+  color: var(--case-body, #3a3a3a);
 }
 
 .case-project-item-wide {
@@ -616,12 +639,8 @@ img {
 }
 
 .case-project-paragraph {
-  display: block;
-  color: #444;
-  font-size: 1rem;
-  line-height: 1.5;
-  letter-spacing: -0.012em;
   max-width: 100%;
+  margin: 0;
 }
 
 .case-laptop img,
@@ -663,9 +682,8 @@ img {
 
 .case-copy-list p {
   padding: 20px 0;
-  color: #222;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.35;
 }
 
 /* ── Layer List ──────────────────────────────────── */
@@ -688,7 +706,7 @@ img {
 .case-states span,
 .case-facts span,
 .case-tradeoff-list span {
-  color: var(--case-blue);
+  color: var(--case-body-label, #999);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -699,9 +717,9 @@ img {
 .case-states p,
 .case-facts p,
 .case-tradeoff-list p {
-  color: #222;
-  font-size: 14px;
-  line-height: 1.7;
+  color: var(--case-body, #3a3a3a);
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 .case-tradeoff-list {
@@ -725,7 +743,7 @@ img {
 }
 
 .case-states span {
-  color: #111;
+  color: var(--case-body, #3a3a3a);
 }
 
 /* ── Decision ────────────────────────────────────── */
@@ -742,9 +760,9 @@ img {
   border-left: 3px solid var(--case-blue);
   background: rgba(58, 91, 217, 0.05);
   border-radius: 0 8px 8px 0;
-  color: #222;
+  color: var(--case-body, #3a3a3a);
   font-size: 15px;
-  line-height: 1.75;
+  line-height: 1.35;
 }
 
 .case-decision img {
@@ -789,9 +807,9 @@ img {
 
 .case-metrics p {
   max-width: 240px;
-  color: var(--case-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  color: var(--case-body-muted, #6b6b6b);
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 /* ── Facts ───────────────────────────────────────── */
@@ -862,12 +880,12 @@ img {
 .case-footer-meta p {
   font-size: 13px;
   font-weight: 500;
-  color: #111;
+  color: var(--case-body, #3a3a3a);
 }
 
 .case-footer-meta span {
   font-size: 13px;
-  color: #666;
+  color: var(--case-body-muted, #6b6b6b);
 }
 
 /* ── Responsive ──────────────────────────────────── */
