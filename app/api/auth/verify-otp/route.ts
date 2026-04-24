@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     deleteOtp(email);
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? "fallback-secret");
-    const token = await new SignJWT({ email, name: entry.name })
+    const token = await new SignJWT({ email, name: entry.name, role: "guest" })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
