@@ -13,90 +13,51 @@ const navItems = [
   ["sec-06", "governanca", "Governar primeiro"],
   ["sec-07", "pendencias", "Pendências"],
   ["sec-08", "decisao", "A decisão"],
-  ["sec-09", "tradeoffs", "O que recusamos"],
+  ["sec-09", "tradeoffs", "Os trade-offs"],
   ["sec-10", "resultado", "De dias para horas"],
 ];
 
 const tags = ["Gestão de Frotas", "B2B SaaS", "IA + Hardware", "Enterprise", "Solo Designer"];
 
-const facts = [
-  ["Empresa", "Infleet"],
-  ["Modelo", "SaaS B2B para gestão de frotas"],
-  ["Tempo", "12 semanas"],
-  ["Papel", "Product Design, discovery técnico e arquitetura de estados"],
-];
 
 const projectMeta = [
-  {
-    label: "Empresa",
-    content: <strong>infleet.com.br</strong>,
-  },
-  {
-    label: "Modelo",
-    content: <strong>SaaS B2B · Gestão de Frotas Enterprise</strong>,
-  },
+  { label: "Empresa", main: "infleet.com.br", sub: "" },
+  { label: "Modelo", main: "SaaS B2B · Gestão de Frotas Enterprise", sub: "" },
   {
     label: "Time",
-    content: (
-      <ul>
-        <li>Product Manager</li>
-        <li>Product Designer</li>
-        <li>Tech Lead</li>
-        <li>Back-end e Front-end</li>
-        <li>Equipe de Hardware</li>
-        <li>Stakeholders</li>
-      </ul>
-    ),
+    main: "Product Manager",
+    sub: "Product Designer · Tech Lead · Back-end e Front-end · Equipe de Hardware · Stakeholders",
   },
-  {
-    label: "Indústria",
-    content: <strong>Segurança e Telemetria Veicular</strong>,
-  },
-  {
-    label: "Duração",
-    content: (
-      <>
-        <strong>12 semanas</strong>
-        <span>4 discovery + 8 build</span>
-      </>
-    ),
-  },
+  { label: "Indústria", main: "Segurança e Telemetria Veicular", sub: "" },
+  { label: "Duração", main: "12 semanas", sub: "4 discovery + 8 build" },
   {
     label: "Status",
-    content: (
-      <>
-        <strong>Lançado para 2 clientes enterprise estratégicos</strong>
-        <span>Contratos em risco protegidos dentro do prazo</span>
-      </>
-    ),
+    main: "Lançado para 2 clientes enterprise estratégicos",
+    sub: "Contratos em risco protegidos dentro do prazo",
   },
 ];
 
-const metrics = [
-  ["30%", "60%", "Identificação automática de motoristas"],
-  ["Dias", "Horas", "Tempo para resolver pendências críticas"],
-  ["-50%", "tickets", "Redução de chamados ligados à identificação"],
-];
-
-const layers = [
-  ["Hardware", "Câmera interna, posição, qualidade da foto e disponibilidade do dispositivo."],
-  ["IA", "Reconhecimento facial com baixa confiança em parte relevante das viagens."],
-  ["Operação", "Times precisavam entender o motivo da falha antes de corrigir qualquer dado."],
-  ["Suporte", "Pendências chegavam sem contexto suficiente e viravam trabalho manual."],
-  ["Cliente", "O gestor de frota precisava auditar viagens sem depender de ida e volta com suporte."],
+const discoveryLayers = [
+  ["01 IA", "Precisão de 10%. Sensível a luz e rostos similares."],
+  ["02 Hardware", "Memória limitada descartava frames do Face ID silenciosamente."],
+  ["03 Conectividade", "Zonas de sombra impediam envio em tempo real."],
+  ["04 Cadastro", "Fotos ausentes ou desatualizadas tornavam a IA ineficaz."],
+  ["05 Humano", "Motoristas obstruíam a câmera intencionalmente."],
 ];
 
 const states = [
-  ["Identificado", "Motorista reconhecido automaticamente com confiança suficiente."],
-  ["Baixa confiança", "A IA sugeria um motorista, mas exigia revisão humana."],
-  ["Sem foto", "O sistema não recebeu evidência visual válida para análise."],
-  ["Desconhecido", "Nenhum motorista conhecido pôde ser associado à viagem."],
+  ["Identificado", "IA reconheceu com confiança."],
+  ["Pendente", "IA sem confiança. Requer revisão humana."],
+  ["Sem foto", "Cadastro sem imagem válida."],
+  ["Não cadastrado", "Motorista novo, ainda fora do sistema."],
+  ["Sem evidência", "Hardware ou conexão impediu a captura."],
 ];
 
-const tradeoffs = [
-  ["Validação em massa", "Parecia eficiente, mas aumentava o risco de confirmar falsos positivos em escala."],
-  ["Automação total", "Não havia confiança técnica suficiente para remover revisão humana do fluxo."],
-  ["Esperar a IA amadurecer", "A resposta técnica levaria meses e os contratos em risco precisavam de uma resposta operacional imediata."],
+const decisionItems = [
+  ["Estratégia", "Governança antes da automação", "IA confiável levaria 6 a 12 meses. Priorizei o sistema human-in-the-loop — valor entregue em 12 semanas com a tecnologia disponível."],
+  ["Arquitetura", "Módulo separado, não extensão do Mapa", "O Mapa já tinha quatro responsabilidades críticas. Monitoramento em tempo real e auditoria de pendências não podem dividir o mesmo espaço. O piloto validou."],
+  ["Trade-off", "Sem bulk na V1", "Falso positivo em massa é irreversível — erro jurídico em escala. Validação individual na V1, bulk com guardrails na V2."],
+  ["Trade-off", "Funcional antes de polido", "Filtros avançados e refinamento visual viraram débito técnico. A prioridade era estabilizar o fluxo principal dentro do prazo."],
 ];
 
 function LogoMark() {
@@ -313,7 +274,7 @@ export default function Portfolio() {
 
     const sectionOffset = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue("--section-offset")
-    ) || 96;
+    ) || 65;
     const nextTop = window.scrollY + panel.getBoundingClientRect().top - sectionOffset;
 
     window.scrollTo({
@@ -415,7 +376,7 @@ export default function Portfolio() {
             </div>
             <h1>
               70% das viagens sem motorista identificado a resposta técnica
-              levaria meses.
+              levaria meses
             </h1>
             <p className="case-hero-subtitle">
               <strong>A IA não estava pronta.</strong>{" "}
@@ -425,16 +386,19 @@ export default function Portfolio() {
         </section>
 
         <section id="overview" className="case-panel case-project-panel case-body">
-          <div className="case-project-heading">
-            <span>02 · Sobre o projeto</span>
-            <h2>Doze semanas para tornar o sistema confiável</h2>
-          </div>
+          <SectionTitle
+            eyebrow="02 Sobre o projeto"
+            title="Doze semanas para tornar o sistema confiável"
+          />
 
           <div className="case-project-grid">
             {projectMeta.map((item) => (
               <article key={item.label} className="case-project-item">
                 <span>{item.label}</span>
-                <div>{item.content}</div>
+                <div>
+                  <strong>{item.main}</strong>
+                  <span>{item.sub}</span>
+                </div>
               </article>
             ))}
 
@@ -453,137 +417,199 @@ export default function Portfolio() {
 
         <section id="crise" className="case-panel case-body">
           <SectionTitle
-            eyebrow="03 · A crise"
-            title="O reconhecimento facial não entregava confiança suficiente para sustentar decisões operacionais."
+            eyebrow="03 A crise"
+            title="O sistema de reconhecimento facial falhava em 70% das viagens. Ninguém sabia por quê."
           />
 
-          <div className="case-two-col">
-            <figure className="case-media">
-              <Image
-                src="/assets/camera interna do motoristas.png"
-                alt="Câmera interna usada para identificação de motoristas"
-                width={1000}
-                height={750}
-                unoptimized
-              />
-            </figure>
-            <div className="case-copy-list">
+          <div className="case-overview-body">
+            <p>
+              A Infleet é uma plataforma SaaS B2B de gestão de frotas. Cada
+              veículo possui uma câmera instalada no painel, conectada ao
+              sistema de telemetria. Ela grava a estrada, gera alertas de
+              segurança e identifica o motorista por reconhecimento facial.
+            </p>
+            <p>
+              Na prática, a identificação funcionava em apenas 30% das viagens.
+              Nos outros 70%, a plataforma simplesmente não mostrava quem estava
+              dirigindo. O campo de motorista ficava vazio, ou aparecia um
+              status genérico como &quot;veículo sem sinal&quot; na tela de monitoramento.
+              Sem qualquer indicação de que houve uma tentativa de identificação
+              que falhou, nem por quê.
+            </p>
+            <p>
+              A funcionalidade havia sido vendida para clientes enterprise com
+              prazo de entrega. Dois contratos de alto valor estavam em risco
+              iminente de cancelamento. A solução puramente técnica, melhorar a
+              precisão da IA, levaria meses sem garantia de resultado.
+            </p>
+          </div>
+
+          <div className="case-overview-grid">
+            <article className="case-overview-card">
+              <h4>Desafio</h4>
               <p>
-                A operação recebia viagens sem motorista identificado, mas sem
-                uma explicação clara sobre o motivo: ausência de imagem, baixa
-                confiança, motorista não cadastrado ou falha de hardware.
+                Sistema de Face ID falhava em 70% das viagens. Gestores não
+                tinham visibilidade sobre a causa nem poder de ação. Dois
+                clientes enterprise com risco iminente de churn.
               </p>
+            </article>
+            <article className="case-overview-card">
+              <h4>Solução</h4>
               <p>
-                Sem essa distinção, o time tratava problemas diferentes como se
-                fossem iguais. A IA parecia ser o gargalo, mas o verdadeiro
-                risco estava na ausência de governança.
+                Módulo dedicado de governança com 5 estados de erro legíveis +
+                fluxo de associação manual (human-in-the-loop), separando
+                auditoria do monitoramento em tempo real.
               </p>
-            </div>
+            </article>
+            <article className="case-overview-card">
+              <h4>Impacto</h4>
+              <p>
+                Identificação automática subiu de 30% para 65%. Tempo de
+                resolução caiu de dias para horas. Tickets de suporte reduziram
+                pela metade. Entregue no prazo para os 2 clientes em risco.
+              </p>
+            </article>
+          </div>
+
+          <div className="case-metrics case-metrics--crise">
+            <article>
+              <strong>30%<span>→</span><em>65%</em></strong>
+              <p>Identificação automática de motoristas</p>
+            </article>
+            <article>
+              <strong>Dias<span>→</span><em>Horas</em></strong>
+              <p>Tempo de resolução de falhas</p>
+            </article>
+            <article>
+              <strong>−50%</strong>
+              <p>Tickets de suporte sobre identificação</p>
+            </article>
           </div>
         </section>
 
         <section id="camadas" className="case-panel case-body">
           <SectionTitle
-            eyebrow="04 · Cinco camadas"
-            title="Mapeamos a falha como sistema, não como evento isolado."
+            eyebrow="04 Cinco camadas"
+            title="Erros técnicos traduzidos em ações operacionais."
           />
-          <div className="case-layer-list">
-            {layers.map(([name, description]) => (
-              <article key={name}>
-                <strong>{name}</strong>
-                <p>{description}</p>
-              </article>
-            ))}
+
+          <div className="case-context-body">
+            <p>
+              A câmera no veículo sustenta rankings de segurança, alertas
+              operacionais e responsabilização jurídica. Quando ela falha em
+              silêncio, o produto inteiro perde credibilidade.
+            </p>
+            <p>
+              O gestor via o erro — mas não sabia se era rede, hardware ou
+              cadastro. Cada falha virava ticket. Em média 2 a 3 por semana,
+              resolvidos em dias por investigação manual entre suporte e
+              engenharia.
+            </p>
           </div>
+
+          <blockquote className="case-quote">
+            <p>
+              &quot;Eu vejo o veículo rodando no mapa, mas não tenho como saber quem
+              está dirigindo. A gente acaba abrindo ticket ou olhando em
+              planilhas.&quot;
+            </p>
+            <cite>— Gestor de frota, durante o piloto</cite>
+          </blockquote>
         </section>
 
         <section id="governanca" className="case-panel case-body">
           <SectionTitle
-            eyebrow="05 · Governar primeiro"
-            title="A decisão foi projetar estados claros antes de perseguir automação total."
+            eyebrow="05 Governar primeiro"
+            title="A identificação não era uma feature. Era a infraestrutura que sustentava o produto."
           />
 
-          <figure className="case-wide-media">
-            <Image
-              src="/assets/diagrama inicio.png"
-              alt="Diagrama inicial da arquitetura de estados"
-              width={1400}
-              height={900}
-              unoptimized
-            />
-          </figure>
+          <p className="case-discovery-lead">
+            Mapeei 40+ tickets e o fluxo completo — Câmera → IA → SaaS. Esse mapeamento não existia na empresa. Foi o primeiro artefato que permitiu tratar o problema como sistema.
+          </p>
 
-          <div className="case-states">
-            {states.map(([name, description]) => (
-              <article key={name}>
-                <span>{name}</span>
-                <p>{description}</p>
+          <div className="case-discovery-layers">
+            {discoveryLayers.map(([name, description]) => (
+              <article key={name} className="case-discovery-layer">
+                <span className="layer-name">{name}</span>
+                <p className="layer-desc">{description}</p>
               </article>
             ))}
           </div>
+
+          <p className="case-discovery-lead case-discovery-lead--insight">
+            Insight: melhorar a IA resolveria uma das cinco camadas. A solução precisava ser de governança.
+          </p>
         </section>
 
         <section id="pendencias" className="case-panel case-body">
           <SectionTitle
-            eyebrow="06 · Pendências"
-            title="A interface passou a explicar o que precisava de ação humana."
+            eyebrow="06 Pendências"
+            title="A falha era sistêmica, não só da IA."
           />
 
-          <div className="case-two-col case-two-col-reverse">
-            <div className="case-copy-list">
-              <p>
-                Em vez de uma lista genérica de erros, o produto passou a
-                separar os motivos de pendência e orientar a próxima ação.
-              </p>
-              <p>
-                Isso reduziu ambiguidade para operação, suporte e cliente, sem
-                criar uma falsa sensação de precisão automática.
-              </p>
-            </div>
-            <figure className="case-media">
-              <Image
-                src="/assets/sem motorista.png"
-                alt="Tela de pendências sem motorista identificado"
-                width={1000}
-                height={750}
-                unoptimized
-              />
-            </figure>
+          <div className="case-insight-body">
+            <p>
+              Nem toda falha tinha o mesmo peso. O falso negativo gerava retrabalho. O falso positivo — identificar o motorista errado — criava passivo jurídico, penalizava indevidamente e distorcia rankings. Para um cliente enterprise, esse erro é irreversível.
+            </p>
+            <p>
+              A estratégia foi criar a camada de governança antes de esperar a IA amadurecer. O módulo devolve ao gestor a autonomia de revisar e decidir — sem depender do suporte.
+            </p>
+          </div>
+
+          <div className="case-insight-decision">
+            <p className="case-insight-decision-label">A decisão</p>
+            <p>Não esperar a IA ficar perfeita. Tornar as falhas tratáveis agora e escaláveis depois.</p>
           </div>
         </section>
 
         <section id="decisao" className="case-panel case-body">
           <SectionTitle
-            eyebrow="07 · A decisão"
-            title="Recusamos validação em massa no primeiro momento."
+            eyebrow="07 A decisão"
+            title="Governar o erro."
           />
 
-          <div className="case-decision">
-            <p>
-              A validação em massa parecia eficiente, mas aumentava o risco de
-              confirmar falsos positivos em escala. A decisão foi priorizar
-              revisão contextual, rastreabilidade e confiança operacional.
-            </p>
-            <Image
-              src="/assets/mockup.png"
-              alt="Mockup da solução de revisão"
-              width={1400}
-              height={900}
-              unoptimized
-            />
+          <p className="case-solution-lead">
+            A virada não foi só de interface — foi de linguagem. &quot;Falha de IA&quot; gerava pânico. &quot;Pendente de identificação&quot; gerava ação. Essa escolha foi uma decisão de produto.
+          </p>
+
+          <div className="case-solution-states">
+            {states.map(([name, description]) => (
+              <article key={name} className="case-solution-state">
+                <span
+                  className={`state-badge ${
+                    name === "Identificado"
+                      ? "state-ok"
+                      : name === "Pendente"
+                        ? "state-warn"
+                        : name === "Sem foto"
+                          ? "state-nophoto"
+                          : name === "Não cadastrado"
+                            ? "state-unknown"
+                            : "state-nodata"
+                  }`}
+                >
+                  {name}
+                </span>
+                <p className="state-desc">{description}</p>
+              </article>
+            ))}
           </div>
+
+          <p className="case-solution-lead">
+            Cada pendência percorre um ciclo auditável: Pendente → Em revisão → Finalizado — com data, responsável e decisão registrados. Para enterprise: rastreabilidade jurídica sem depender de suporte.
+          </p>
         </section>
 
         <section id="tradeoffs" className="case-panel case-body">
           <SectionTitle
-            eyebrow="08 · O que recusamos"
-            title="Nem toda solução aparentemente eficiente era segura para o momento do produto."
+            eyebrow="08 Os trade-offs"
+            title="O que decidimos não fazer foi tão importante quanto o que fizemos."
           />
 
-          <div className="case-tradeoff-list">
-            {tradeoffs.map(([title, description]) => (
-              <article key={title}>
-                <span>{title}</span>
+          <div className="case-decision-list">
+            {decisionItems.map(([kicker, title, description]) => (
+              <article key={`${kicker}-${title}`} className="case-decision-item">
+                <h3>{kicker} {title}</h3>
                 <p>{description}</p>
               </article>
             ))}
@@ -592,30 +618,38 @@ export default function Portfolio() {
 
         <section id="resultado" className="case-panel case-final-panel case-body">
           <SectionTitle
-            eyebrow="09 · O resultado"
-            title="A solução transformou uma falha invisível em uma rotina operacional auditável."
+            eyebrow="09 O resultado"
+            title="O sistema funcionou. E funcionou porque aceitou ser imperfeito."
           />
 
+          <p className="case-validation-body">
+            Identificação subiu de 30% para 65% — não por melhoria da IA, mas por governança, cadastros corrigidos e revisão humana estruturada. Resolução caiu de dias para horas. Tickets reduziram 50%. Dois contratos protegidos no prazo.
+          </p>
+
           <div className="case-metrics">
-            {metrics.map(([before, after, label]) => (
-              <article key={label}>
-                <strong>
-                  {before}
-                  <span>→</span>
-                  <em>{after}</em>
-                </strong>
-                <p>{label}</p>
-              </article>
-            ))}
+            <article>
+              <strong>30%<span>→</span><em>65%</em></strong>
+              <p>Identificação automática</p>
+            </article>
+            <article>
+              <strong>Dias<span>→</span><em>Horas</em></strong>
+              <p>Tempo de resolução</p>
+            </article>
+            <article>
+              <strong>−50%</strong>
+              <p>Tickets de suporte</p>
+            </article>
           </div>
 
-          <div className="case-facts">
-            {facts.map(([label, value]) => (
-              <article key={label}>
-                <span>{label}</span>
-                <p>{value}</p>
-              </article>
-            ))}
+          <div className="case-validation-footer">
+            <p>
+              Aprendizado: sistemas críticos com IA imatura não falham por falta de algoritmo. Falham por falta de governança. Operabilidade primeiro — inteligência depois.
+            </p>
+            <p>
+              V2 Validação em lote com guardrails<br />
+              V2 Filtros por período, motorista e tipo de falha<br />
+              V2 Dashboard de auditoria para compliance
+            </p>
           </div>
         </section>
 
