@@ -173,20 +173,22 @@ img {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: auto;
-  padding-bottom: 34px;
+  margin-top: 44px;
+  padding-bottom: 0;
 }
 
 /* Tagline — começa oculta, aparece quando footer entra no viewport */
 .case-sidebar-statement {
-  font-size: clamp(18px, 1.45vw, 24px);
+  font-size: clamp(14px, 1vw, 18px);
   font-weight: 600;
-  line-height: 1.16;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.35s ease, transform 0.35s ease;
   pointer-events: none;
+  width: 100%;
+  max-width: none;
 }
 
 .case-sidebar-statement.is-visible {
@@ -264,112 +266,379 @@ img {
   align-items: center;
 }
 
-/* ── Aware Button ────────────────────────────────── */
+/* ── Aware Buttons — base ────────────────────────── */
 
-@keyframes aware-in-top {
-  from { transform: translateY(-100%); }
-  to   { transform: translateY(0); }
-}
-@keyframes aware-in-right {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
-}
-@keyframes aware-in-bottom {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-@keyframes aware-in-left {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
-}
-@keyframes aware-out-top {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-100%); }
-}
-@keyframes aware-out-right {
-  from { transform: translateX(0); }
-  to   { transform: translateX(100%); }
-}
-@keyframes aware-out-bottom {
-  from { transform: translateY(0); }
-  to   { transform: translateY(100%); }
-}
-@keyframes aware-out-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-100%); }
-}
-
+/* Both buttons share this base: handles the fill span + active scale */
 .btn-aware {
   position: relative;
   overflow: hidden;
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  cursor: pointer;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
-  text-decoration: none;
-  white-space: nowrap;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
   font-family: inherit;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  /* only scale, fill transform is on the child .btn-fill */
+  transition: transform 0.12s ease;
 }
 
-.btn-aware > span {
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
+.btn-aware:active {
+  transform: scale(0.97);
 }
 
-.btn-aware::before {
-  content: '';
+.btn-aware:focus-visible {
+  outline: 2px solid #3a5dae;
+  outline-offset: 3px;
+}
+
+/* The directional fill — JS sets transform inline */
+.btn-fill {
   position: absolute;
   inset: 0;
-  background: var(--case-blue);
-  transform: translateY(-101%);
+  border-radius: inherit;
+  background: var(--fill-color, #3a5dae);
+  transform: translateY(101%); /* hidden by default */
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
 }
 
-.btn-aware[data-dir="top"]::before    { animation: aware-in-top    0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="right"]::before  { animation: aware-in-right  0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="bottom"]::before { animation: aware-in-bottom 0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="left"]::before   { animation: aware-in-left   0.3s cubic-bezier(.25,.25,0,1) forwards; }
+/* ── Primary Button ("Fale comigo") ──────────────── */
 
-.btn-aware[data-dir="out-top"]::before    { animation: aware-out-top    0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="out-right"]::before  { animation: aware-out-right  0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="out-bottom"]::before { animation: aware-out-bottom 0.3s cubic-bezier(.25,.25,0,1) forwards; }
-.btn-aware[data-dir="out-left"]::before   { animation: aware-out-left   0.3s cubic-bezier(.25,.25,0,1) forwards; }
+.btn-primary {
+  --fill-color: #3a5dae;
+  background: #111;
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 13.5px;
+}
 
-/* ── Circle Button ───────────────────────────────── */
+/* Label stack — two labels stacked via CSS grid, overflow hidden clips slides */
+.btn-labels {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  /* height = one label; translate animation moves them through this window */
+}
+
+.btn-label,
+.btn-label-alt {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.38s cubic-bezier(.25,.25,0,1),
+    opacity   0.28s ease;
+}
+
+.btn-label {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.btn-label-alt {
+  transform: translateY(70%);
+  opacity: 0;
+  /* visually hidden until hover */
+}
+
+.btn-aware:hover .btn-label,
+.btn-aware:focus-visible .btn-label {
+  transform: translateY(-70%);
+  opacity: 0;
+}
+
+.btn-aware:hover .btn-label-alt,
+.btn-aware:focus-visible .btn-label-alt {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Single-label variant (no alt text) */
+.btn-single-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Circle Button ("In") ────────────────────────── */
 
 .btn-circle {
+  --fill-color: #3a5dae; /* mesmo azul do primary */
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1.5px solid #000;
-  background: transparent;
+  border: 1.5px solid #fff;
+  background: #fff;
+  color: #111;
+  flex-shrink: 0;
+}
+
+/* Especificidade dupla para garantir que border-color + transform coexistam */
+.btn-aware.btn-circle {
+  transition: border-color 0.35s ease, transform 0.12s ease;
+}
+
+.btn-aware.btn-circle:hover,
+.btn-aware.btn-circle:focus-visible {
+  border-color: transparent;
+}
+
+.btn-aware.btn-circle:active {
+  transform: scale(0.93);
+}
+
+/* Inner wrapper — centraliza o texto dentro do círculo */
+.btn-circle-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Texto "In" — fixo, só muda de cor quando o fill cobre */
+.btn-circle-text {
   font-size: 13px;
   font-weight: 500;
   color: #111;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  text-decoration: none;
-  transition: border-color 0.2s, color 0.2s;
-  font-family: inherit;
+  transition: color 0.35s ease;
 }
 
-.btn-circle:hover {
-  border-color: var(--case-blue);
-  color: var(--case-blue);
+.btn-aware.btn-circle:hover .btn-circle-text,
+.btn-aware.btn-circle:focus-visible .btn-circle-text {
+  color: #fff;
+}
+
+/* Ícone SVG — não usado */
+.btn-circle-icon {
+  display: none;
+}
+
+/* ── Contact Drawer ──────────────────────────────── */
+
+body.drawer-open {
+  overflow: hidden;
+}
+
+.contact-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.contact-drawer.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.contact-drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.24);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  cursor: default;
+}
+
+.contact-drawer.is-open .contact-drawer-overlay {
+  opacity: 1;
+}
+
+.contact-drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: clamp(420px, 34vw, 560px);
+  height: 100%;
+  background: var(--case-bg);
+  border-left: 1px solid #d0d0d0;
+  padding: 0 52px 40px;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.48s cubic-bezier(.25,.25,0,1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.contact-drawer.is-open .contact-drawer-panel {
+  transform: translateX(0);
+}
+
+.contact-drawer-top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 65px;
+}
+
+.contact-drawer-close {
+  padding-left: 16px;
+  padding-right: 16px;
+  font-size: 13px;
+}
+
+.contact-drawer-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding-top: 52px;
+}
+
+.contact-drawer-title {
+  font-size: clamp(28px, 2.4vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-bottom: 48px;
+  color: #000;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.contact-field label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #999;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  background: transparent;
+  padding: 0 0 12px;
+  font: inherit;
+  font-size: 15px;
+  color: #111;
+  border-radius: 0;
+  outline: none;
+  transition: border-bottom-color 0.2s ease;
+}
+
+.contact-field input::placeholder,
+.contact-field textarea::placeholder {
+  color: #c0c0c0;
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+  border-bottom-color: #111;
+}
+
+.contact-field.has-error input,
+.contact-field.has-error textarea {
+  border-bottom-color: #c0392b;
+}
+
+.field-error {
+  font-size: 11.5px;
+  color: #c0392b;
+  margin-top: 5px;
+  display: block;
+}
+
+.contact-field textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+.contact-drawer-bottom {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 40px;
+}
+
+.contact-submit {
+  min-width: 160px;
+}
+
+.contact-submit.is-disabled,
+.contact-submit:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.contact-success {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.contact-success p {
+  font-size: clamp(26px, 2.2vw, 36px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #000;
+  margin: 0;
+}
+
+.contact-success span {
+  font-size: 14px;
+  color: #888;
+}
+
+.contact-error {
+  font-size: 13px;
+  color: #c0392b;
+  margin: 20px 0 0;
+}
+
+@media (max-width: 767px) {
+  .contact-drawer-panel {
+    width: 100%;
+    padding: 0 24px 32px;
+  }
+  .contact-drawer-content {
+    padding-top: 24px;
+  }
+  .contact-drawer-title {
+    font-size: 26px;
+    margin-bottom: 32px;
+  }
 }
 
 /* ── Hero ────────────────────────────────────────── */
 
 .case-hero {
-  min-height: calc(100vh - var(--case-spa-h));
+  min-height: calc(100vh - var(--case-spa-h) + 96px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 38%) 1px 80px;
   grid-template-rows: 1fr auto;
@@ -438,7 +707,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 0 28px 34px 28px;
+  padding: 0 28px 84px 28px;
 }
 
 .case-tags {
@@ -491,13 +760,21 @@ img {
 
 .case-panel {
   min-height: 100vh;
-  padding: 28px;
+  padding: 36px 40px 92px;
   scroll-margin-top: var(--section-offset);
   background: var(--case-bg);
 }
 
+.case-panel + .case-panel {
+  margin-top: 88px;
+}
+
+.case-hero + .case-panel {
+  margin-top: 128px;
+}
+
 .case-project-panel {
-  padding-top: 28px;
+  padding-top: 36px;
 }
 
 .case-section-header {

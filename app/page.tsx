@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from "next/image";
+import { ContactDrawer } from '@/components/ContactDrawer';
+import { AwareButton } from '@/components/AwareButton';
 
 const navItems = [
   ["sec-00", "cover", "Hero"],
@@ -130,47 +132,110 @@ function SectionTitle({
   );
 }
 
-function AwareButton({
+/* ── CircleButton helpers ─────────────────────────── */
+
+const EASING = 'cubic-bezier(0.25, 0.25, 0, 1)';
+
+function getMouseDir(e: React.MouseEvent<HTMLElement>): 'top' | 'right' | 'bottom' | 'left' {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left - rect.width / 2;
+  const y = e.clientY - rect.top - rect.height / 2;
+  const angle = Math.atan2(y, x) * (180 / Math.PI);
+  if (angle > -45 && angle <= 45)  return 'right';
+  if (angle > 45  && angle <= 135) return 'bottom';
+  if (angle > 135 || angle <= -135) return 'left';
+  return 'top';
+}
+
+function dirToTransform(dir: 'top' | 'right' | 'bottom' | 'left'): string {
+  if (dir === 'top')    return 'translateY(-101%)';
+  if (dir === 'right')  return 'translateX(101%)';
+  if (dir === 'bottom') return 'translateY(101%)';
+  return 'translateX(-101%)';
+}
+
+/* ── CircleButton — secondary circle ─────────────── */
+
+function CircleButton({
   href,
-  children,
+  label,
+  icon,
+  onClick,
 }: {
   href?: string;
-  children: ReactNode;
+  label: string;
+  icon: ReactNode;
+  onClick?: () => void;
 }) {
-  function getDir(e: React.MouseEvent<HTMLElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const angle = Math.atan2(y, x) * (180 / Math.PI);
-    if (angle > -45 && angle <= 45) return "right";
-    if (angle > 45 && angle <= 135) return "bottom";
-    if (angle > 135 || angle <= -135) return "left";
-    return "top";
-  }
+  const fillRef = useRef<HTMLSpanElement>(null);
 
-  const onEnter = (e: React.MouseEvent<HTMLElement>) =>
-    e.currentTarget.setAttribute("data-dir", getDir(e));
-  const onLeave = (e: React.MouseEvent<HTMLElement>) =>
-    e.currentTarget.setAttribute("data-dir", `out-${getDir(e)}`);
+  const onEnter = (e: React.MouseEvent<HTMLElement>) => {
+    const fill = fillRef.current;
+    if (!fill) return;
+    const dir = getMouseDir(e);
+    fill.style.transition = 'none';
+    fill.style.transform = dirToTransform(dir);
+    fill.getBoundingClientRect();
+    fill.style.transition = `transform 0.42s ${EASING}`;
+    fill.style.transform = 'translate(0, 0)';
+  };
+
+  const onLeave = (e: React.MouseEvent<HTMLElement>) => {
+    const fill = fillRef.current;
+    if (!fill) return;
+    fill.style.transition = `transform 0.42s ${EASING}`;
+    fill.style.transform = dirToTransform(getMouseDir(e));
+  };
+
+  const inner = (
+    <>
+      <span ref={fillRef} className="btn-fill" aria-hidden="true" />
+      <span className="btn-circle-inner">
+        <span className="btn-circle-text" aria-hidden="true">{label}</span>
+        <span className="btn-circle-icon" aria-hidden="true">{icon}</span>
+      </span>
+    </>
+  );
 
   if (href) {
     return (
-      <a href={href} className="btn-aware" onMouseEnter={onEnter} onMouseLeave={onLeave}>
-        <span>{children}</span>
+      <a
+        href={href}
+        className="btn-aware btn-circle"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+      >
+        {inner}
       </a>
     );
   }
   return (
-    <button className="btn-aware" onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <span>{children}</span>
+    <button
+      type="button"
+      className="btn-aware btn-circle"
+      aria-label={label}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onClick={onClick}
+    >
+      {inner}
     </button>
   );
 }
 
+/* ── Page ─────────────────────────────────────────── */
+
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("sec-00");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const footerInnerRef = useRef<HTMLDivElement>(null);
   const sidebarFooterRef = useRef<HTMLDivElement>(null);
+
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const isProgrammaticScrollRef = useRef(false);
   const scrollSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -292,7 +357,7 @@ export default function Portfolio() {
             <br />
             <span>O negócio não podia esperar.</span>
           </div>
-          <small>Product Designer · São Paulo</small>
+          <small>Product Designer · Front-end</small>
         </footer>
       </aside>
 
@@ -305,16 +370,18 @@ export default function Portfolio() {
             {String(total).padStart(2, "0")}
           </span>
           <div className="case-spa-actions">
-            <AwareButton href="mailto:whang.william@gmail.com">Contato</AwareButton>
-            <a
-              className="btn-circle"
+            <AwareButton onClick={openDrawer} alt="Vamos conversar">
+              Contato
+            </AwareButton>
+            <CircleButton
               href="https://linkedin.com/in/williamwhang"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              in
-            </a>
+              label="In"
+              icon={
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M6.5 8.5A1.5 1.5 0 1 0 6.5 5.5a1.5 1.5 0 0 0 0 3ZM5 10h3v9H5v-9Zm5.5 0H13v1.2c.5-.9 1.7-1.4 2.8-1.4C18 9.8 19 11 19 13.3V19h-3v-5.3c0-1.2-.5-1.9-1.5-1.9s-2 .7-2 2V19h-3v-9Z" />
+                </svg>
+              }
+            />
           </div>
         </header>
 
@@ -564,6 +631,8 @@ export default function Portfolio() {
           </div>
         </footer>
       </section>
+
+      <ContactDrawer isOpen={drawerOpen} onClose={closeDrawer} />
     </main>
   );
 }
