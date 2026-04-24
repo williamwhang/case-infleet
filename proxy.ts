@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { hasValidSession } from "@/lib/session";
 
 const isAuthDisabledInDev =
   process.env.NODE_ENV !== "production" &&
@@ -22,19 +22,13 @@ export async function proxy(request: NextRequest) {
 
   const token = request.cookies.get("session")?.value;
 
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (await hasValidSession(token)) {
+    return NextResponse.next();
   }
 
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? "fallback-secret");
-    await jwtVerify(token, secret);
-    return NextResponse.next();
-  } catch {
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    response.cookies.delete("session");
-    return response;
-  }
+  const response = NextResponse.redirect(new URL("/login", request.url));
+  response.cookies.delete("session");
+  return response;
 }
 
 export const config = {
