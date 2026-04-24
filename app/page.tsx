@@ -621,12 +621,12 @@ export default function Portfolio() {
 
         <footer className="case-footer-cta">
           <div ref={footerInnerRef} className="case-footer-cta-inner">
-            <button className="case-footer-trigger">
-              Vamos trabalhar juntos?
+            <button className="case-footer-trigger" onClick={openDrawer}>
+              Entre em contato
             </button>
             <div className="case-footer-meta">
-              <p>whang.william@gmail.com</p>
-              <span>Product Designer · São Paulo</span>
+              <p>© 2026 William Whang — Todos os direitos reservados</p>
+              <span>Conceito, design e código por mim</span>
             </div>
           </div>
         </footer>
