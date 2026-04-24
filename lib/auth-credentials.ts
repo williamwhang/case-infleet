@@ -30,6 +30,10 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+function normalizeSecret(value: string): string {
+  return value.trim();
+}
+
 function getConfiguredUsers(): UserCredentials[] {
   const configured: UserCredentials[] = [];
 
@@ -38,7 +42,7 @@ function getConfiguredUsers(): UserCredentials[] {
   if (adminEmail && adminPassword) {
     configured.push({
       email: normalizeEmail(adminEmail),
-      password: adminPassword,
+      password: normalizeSecret(adminPassword),
       role: "admin",
       displayName: "Admin",
     });
@@ -49,7 +53,7 @@ function getConfiguredUsers(): UserCredentials[] {
   if (userEmail && userPassword) {
     configured.push({
       email: normalizeEmail(userEmail),
-      password: userPassword,
+      password: normalizeSecret(userPassword),
       role: "user",
       displayName: "Convidado",
     });
