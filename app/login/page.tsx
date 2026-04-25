@@ -1,10 +1,24 @@
 "use client";
-
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AwareButton } from "@/components/AwareButton";
 
 type AccessMode = "visitor" | "admin";
-type Step = "credentials" | "otp";
+type Step = "credentials" | "requested" | "otp";
+
+function LogoMark() {
+  return (
+    <Image
+      src="/assets/logo-william.svg"
+      alt=""
+      aria-hidden="true"
+      className="case-logo-mark login-logo-mark"
+      width={26}
+      height={24}
+    />
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,11 +63,11 @@ export default function LoginPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Erro ao enviar código. Tente novamente.");
+      setError(data.error ?? "Erro ao solicitar acesso, tente novamente");
       return;
     }
 
-    setStep("otp");
+    setStep("requested");
   }
 
   async function handleVerifyOtp(e: React.FormEvent) {
@@ -72,7 +86,7 @@ export default function LoginPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Código inválido ou expirado.");
+      setError(data.error ?? "Codigo invalido ou expirado");
       return;
     }
 
@@ -101,7 +115,7 @@ export default function LoginPage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Falha no login. Tente novamente.");
+      setError(data.error ?? "Falha no login, tente novamente");
       return;
     }
 
@@ -145,173 +159,232 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-10">
-          <p className="text-xs font-medium tracking-widest uppercase text-muted mb-3">
-            William Whang
-          </p>
-          <h1 className="text-2xl font-medium text-ink leading-snug">
-            Acesso ao portfólio
-          </h1>
-          <p className="text-sm text-muted mt-2">
-            {mode === "visitor"
-              ? step === "credentials"
-                ? "Receba um código por e-mail para acessar como visitante."
-                : `Enviamos um código de 6 dígitos para ${visitorEmail}.`
-              : "Use seu e-mail e senha para entrar como admin."}
-          </p>
-        </div>
+    <main className="login-shell">
+      <section className="login-stage">
+        <aside className="login-brand-panel">
+          <a href="/login" className="case-brand login-brand">
+            <LogoMark />
+            <span>William Whang</span>
+          </a>
 
-        <div className="grid grid-cols-2 gap-2 rounded-base bg-canvas p-1 mb-6 border" style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}>
-          <button
-            type="button"
-            onClick={() => handleModeChange("visitor")}
-            className={`h-10 rounded-base text-sm transition-colors ${mode === "visitor" ? "bg-ink text-canvas" : "text-muted"}`}
-          >
-            Visitante
-          </button>
-          <button
-            type="button"
-            onClick={() => handleModeChange("admin")}
-            className={`h-10 rounded-base text-sm transition-colors ${mode === "admin" ? "bg-ink text-canvas" : "text-muted"}`}
-          >
-            Admin
-          </button>
-        </div>
+          <div className="login-brand-copy">
+            <span className="login-kicker">Acesso por convite</span>
+            <h1 className="login-title">Portfólio protegido</h1>
+            <p className="login-subtitle">
+              Projetos compartilhados mediante acesso autorizado
+            </p>
+          </div>
+        </aside>
 
-        {mode === "visitor" ? (
-          step === "credentials" ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-muted mb-1.5 tracking-wide uppercase">
-                  Nome
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  autoFocus
-                  placeholder="Seu nome completo"
-                  className="w-full h-11 px-3.5 border text-sm text-ink placeholder-rim bg-canvas rounded-base outline-none focus:border-ink transition-colors"
-                  style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}
-                />
+        <section className="login-panel">
+          <div className="login-card">
+            <div className="login-panel-header">
+              <span className="login-overline">Acesso</span>
+              <div className="login-mode-switch" role="tablist" aria-label="Modo de acesso">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "visitor"}
+                  onClick={() => handleModeChange("visitor")}
+                  className={`login-mode-button${mode === "visitor" ? " is-active" : ""}`}
+                >
+                  Visitante
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "admin"}
+                  onClick={() => handleModeChange("admin")}
+                  className={`login-mode-button${mode === "admin" ? " is-active" : ""}`}
+                >
+                  Admin
+                </button>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-muted mb-1.5 tracking-wide uppercase">
-                  E-mail
-                </label>
-                <input
-                  type="email"
-                  value={visitorEmail}
-                  onChange={(e) => setVisitorEmail(e.target.value)}
-                  required
-                  placeholder="seu@email.com"
-                  className="w-full h-11 px-3.5 border text-sm text-ink placeholder-rim bg-canvas rounded-base outline-none focus:border-ink transition-colors"
-                  style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}
-                />
-              </div>
-              {error && (
-                <p className="text-xs text-crimson">{error}</p>
-              )}
-              <button
-                type="submit"
-                disabled={loading || !name || !visitorEmail}
-                className="w-full h-11 bg-ink text-canvas text-sm font-medium rounded-base transition-opacity disabled:opacity-40 mt-2"
-              >
-                {loading ? "Enviando..." : "Receber código"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-6">
-              <div>
-                <label className="block text-xs font-medium text-muted mb-3 tracking-wide uppercase">
-                  Código de 6 dígitos
-                </label>
-                <div className="flex gap-2" onPaste={handleOtpPaste}>
-                  {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={(el) => {
-                        otpRefs.current[i] = el;
+            </div>
+
+            <div className="login-card-copy">
+              <h2 className="login-card-title">
+                {mode === "visitor"
+                  ? step === "credentials"
+                    ? "Solicitar acesso"
+                    : step === "requested"
+                      ? "Solicitação enviada"
+                      : "Insira o código"
+                  : "Área administrativa"}
+              </h2>
+              <p className="login-card-subtitle">
+                {mode === "visitor"
+                  ? step === "credentials"
+                    ? "Informe seu nome e e-mail para solicitar acesso ao portfólio"
+                    : step === "requested"
+                      ? "Solicitação enviada. Você receberá o código se o acesso for aprovado"
+                      : "Insira o código enviado para seu e-mail"
+                  : "Use suas credenciais internas para continuar"}
+              </p>
+            </div>
+
+            {mode === "visitor" ? (
+              step === "credentials" ? (
+                <form onSubmit={handleSendOtp} className="contact-form login-form">
+                  <div className="contact-fields">
+                    <div className="contact-field">
+                      <label htmlFor="visitor-name">Nome</label>
+                      <input
+                        id="visitor-name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        autoFocus
+                        placeholder="Seu nome"
+                      />
+                    </div>
+                    <div className="contact-field">
+                      <label htmlFor="visitor-email">Email</label>
+                      <input
+                        id="visitor-email"
+                        type="email"
+                        value={visitorEmail}
+                        onChange={(e) => setVisitorEmail(e.target.value)}
+                        required
+                        placeholder="seu@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  {error ? <p className="contact-error">{error}</p> : null}
+
+                  <div className="login-actions">
+                    <AwareButton
+                      type="submit"
+                      alt="Enviar solicitação"
+                      className="login-submit"
+                      disabled={loading || !name || !visitorEmail}
+                    >
+                      {loading ? "Enviando" : "Solicitar acesso"}
+                    </AwareButton>
+                  </div>
+                </form>
+              ) : step === "requested" ? (
+                <div className="contact-form login-form">
+                  <div className="contact-success">
+                    <p>Solicitação enviada</p>
+                    <span>Você receberá o código se o acesso for aprovado</span>
+                  </div>
+
+                  <div className="login-actions">
+                    <AwareButton
+                      type="button"
+                      alt="Inserir código"
+                      className="login-submit"
+                      onClick={() => {
+                        setError("");
+                        setStep("otp");
                       }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(i, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                      autoFocus={i === 0}
-                      className="w-full h-14 text-center text-xl font-medium text-ink bg-canvas border rounded-base outline-none focus:border-ink transition-colors"
-                      style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}
-                    />
-                  ))}
+                    >
+                      Já recebi um código
+                    </AwareButton>
+                    <button
+                      type="button"
+                      onClick={() => resetVisitorFlow()}
+                      className="login-secondary-link"
+                    >
+                      Solicitar novamente
+                    </button>
+                  </div>
                 </div>
-              </div>
-              {error && (
-                <p className="text-xs text-crimson">{error}</p>
-              )}
-              <button
-                type="submit"
-                disabled={loading || otp.some((digit) => !digit)}
-                className="w-full h-11 bg-ink text-canvas text-sm font-medium rounded-base transition-opacity disabled:opacity-40"
-              >
-                {loading ? "Validando..." : "Entrar com código"}
-              </button>
-              <button
-                type="button"
-                onClick={() => resetVisitorFlow()}
-                className="w-full text-xs text-muted hover:text-ink transition-colors"
-              >
-                Alterar nome ou e-mail
-              </button>
-            </form>
-          )
-        ) : (
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1.5 tracking-wide uppercase">
-                E-mail
-              </label>
-              <input
-                type="email"
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                required
-                autoFocus
-                placeholder="admin@empresa.com"
-                className="w-full h-11 px-3.5 border text-sm text-ink placeholder-rim bg-canvas rounded-base outline-none focus:border-ink transition-colors"
-                style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1.5 tracking-wide uppercase">
-                Senha
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Sua senha"
-                className="w-full h-11 px-3.5 border text-sm text-ink placeholder-rim bg-canvas rounded-base outline-none focus:border-ink transition-colors"
-                style={{ borderColor: "#e8e8e6", borderWidth: "0.5px" }}
-              />
-            </div>
-            {error && (
-              <p className="text-xs text-crimson">{error}</p>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="contact-form login-form">
+                  <div className="contact-fields">
+                    <div className="contact-field">
+                      <label>Codigo de 6 digitos</label>
+                      <div className="login-otp-row" onPaste={handleOtpPaste}>
+                        {otp.map((digit, i) => (
+                          <input
+                            key={i}
+                            ref={(el) => {
+                              otpRefs.current[i] = el;
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(i, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                            autoFocus={i === 0}
+                            className="login-otp-input"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {error ? <p className="contact-error">{error}</p> : null}
+
+                  <div className="login-actions">
+                    <AwareButton
+                      type="submit"
+                      alt="Entrar agora"
+                      className="login-submit"
+                      disabled={loading || otp.some((digit) => !digit)}
+                    >
+                      {loading ? "Validando" : "Acessar"}
+                    </AwareButton>
+                    <button
+                      type="button"
+                      onClick={() => resetVisitorFlow()}
+                      className="login-secondary-link"
+                    >
+                      Alterar nome ou e-mail
+                    </button>
+                  </div>
+                </form>
+              )
+            ) : (
+              <form onSubmit={handleAdminLogin} className="contact-form login-form">
+                <div className="contact-fields">
+                  <div className="contact-field">
+                    <label htmlFor="admin-email">Email</label>
+                  <input
+                    id="admin-email"
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    required
+                    autoFocus
+                    placeholder="seu@email.com"
+                  />
+                  </div>
+                  <div className="contact-field">
+                    <label htmlFor="admin-password">Senha</label>
+                    <input
+                      id="admin-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Sua senha"
+                    />
+                  </div>
+                </div>
+
+                {error ? <p className="contact-error">{error}</p> : null}
+
+                <div className="login-actions">
+                  <AwareButton
+                    type="submit"
+                    alt="Entrar agora"
+                    className="login-submit"
+                    disabled={loading || !adminEmail || !password}
+                  >
+                    {loading ? "Entrando" : "Entrar"}
+                  </AwareButton>
+                </div>
+              </form>
             )}
-            <button
-              type="submit"
-              disabled={loading || !adminEmail || !password}
-              className="w-full h-11 bg-ink text-canvas text-sm font-medium rounded-base transition-opacity disabled:opacity-40 mt-2"
-            >
-              {loading ? "Entrando..." : "Entrar como admin"}
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+          </div>
+        </section>
+      </section>
+    </main>
   );
 }

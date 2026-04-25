@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "E-mail e código são obrigatórios." }, { status: 400 });
     }
 
-    const entry = getOtp(email);
+    const entry = await getOtp(email);
 
     if (!entry) {
       return Response.json({ error: "Código expirado ou inválido." }, { status: 401 });
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Código incorreto." }, { status: 401 });
     }
 
-    deleteOtp(email);
+    await deleteOtp(email);
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? "fallback-secret");
     const token = await new SignJWT({ email, name: entry.name, role: "guest" })

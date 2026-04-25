@@ -1,30 +1,61 @@
-interface OtpEntry {
+import { kv } from "@vercel/kv";
+
+export interface OtpEntry {
   code: string;
   name: string;
   expiresAt: number;
 }
 
-// In-memory store — works for single-process environments (dev + single-instance prod).
-const store = new Map<string, OtpEntry>();
+const memoryStore = new Map<string, OtpEntry>();
 
-export function setOtp(email: string, code: string, name: string, ttlSeconds = 900) {
-  store.set(email.toLowerCase(), {
+function keyFor(email: string) {
+  return `otp:${email.trim().toLowerCase()}`;
+}
+
+function hasKvConfigured() {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+export async function setOtp(email: string, code: string, name: string, ttlSeconds = 900) {
+  const entry: OtpEntry = {
     code,
     name,
     expiresAt: Date.now() + ttlSeconds * 1000,
-  });
+  };
+
+  if (hasKvConfigured()) {
+    await kv.set(keyFor(email), entry, { ex: ttlSeconds });
+    return;
+  }
+
+  memoryStore.set(keyFor(email), entry);
 }
 
-export function getOtp(email: string): OtpEntry | null {
-  const entry = store.get(email.toLowerCase());
+export async function getOtp(email: string): Promise<OtpEntry | null> {
+  if (hasKvConfigured()) {
+    const entry = await kv.get<OtpEntry>(keyFor(email));
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+      await kv.del(keyFor(email));
+      return null;
+    }
+    return entry;
+  }
+
+  const entry = memoryStore.get(keyFor(email));
   if (!entry) return null;
   if (Date.now() > entry.expiresAt) {
-    store.delete(email.toLowerCase());
+    memoryStore.delete(keyFor(email));
     return null;
   }
   return entry;
 }
 
-export function deleteOtp(email: string) {
-  store.delete(email.toLowerCase());
+export async function deleteOtp(email: string) {
+  if (hasKvConfigured()) {
+    await kv.del(keyFor(email));
+    return;
+  }
+
+  memoryStore.delete(keyFor(email));
 }

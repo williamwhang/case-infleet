@@ -1,8 +1,13 @@
 import { Resend } from "resend";
-import { setOtp } from "@/lib/otp-store";
+import { createApprovalToken } from "@/lib/access-approval";
 
-function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+function getApproverEmail() {
+  return (
+    process.env.ACCESS_APPROVER_EMAIL ??
+    process.env.ADMIN_EMAIL ??
+    process.env.RESEND_FROM_EMAIL ??
+    "onboarding@resend.dev"
+  );
 }
 
 export async function POST(request: Request) {
@@ -13,38 +18,44 @@ export async function POST(request: Request) {
       return Response.json({ error: "Nome e e-mail são obrigatórios." }, { status: 400 });
     }
 
+    const trimmedName = String(name).trim();
+    const normalizedEmail = String(email).trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+
+    if (!emailRegex.test(normalizedEmail)) {
       return Response.json({ error: "E-mail inválido." }, { status: 400 });
     }
 
-    const code = generateOtp();
-    setOtp(email, code, name);
+    const approvalToken = await createApprovalToken(normalizedEmail, trimmedName);
+    const approveUrl = new URL("/api/auth/approve", request.url);
+    approveUrl.searchParams.set("token", approvalToken);
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
-      to: email,
-      subject: "Seu código de acesso — William Whang",
+      to: getApproverEmail(),
+      subject: `Solicitação de acesso — ${trimmedName}`,
       html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
-          <p style="font-size: 14px; color: #6b6b6b; margin: 0 0 32px;">William Whang · Portfólio</p>
-          <h1 style="font-size: 24px; font-weight: 500; margin: 0 0 8px;">Olá, ${name}</h1>
-          <p style="font-size: 15px; color: #6b6b6b; margin: 0 0 32px;">Aqui está o seu código de acesso ao portfólio:</p>
-          <div style="background: #f8f8f6; border-radius: 8px; padding: 24px; text-align: center; margin: 0 0 32px;">
-            <span style="font-size: 36px; font-weight: 600; letter-spacing: 8px; color: #1a1a1a;">${code}</span>
-          </div>
-          <p style="font-size: 13px; color: #6b6b6b; margin: 0;">Este código expira em <strong>15 minutos</strong>. Se não solicitaste este acesso, ignora este e-mail.</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 24px; color: #1a1a1a;">
+          <p style="font-size: 14px; color: #6b6b6b; margin: 0 0 32px;">William Whang · Solicitação de acesso</p>
+          <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 12px;">Novo pedido de acesso</h1>
+          <p style="font-size: 15px; color: #6b6b6b; margin: 0 0 28px;">Um visitante solicitou acesso ao portfólio.</p>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 32px;">
+            <tr><td style="padding: 10px 0; color: #6b6b6b; width: 120px;">Nome</td><td style="padding: 10px 0;">${trimmedName}</td></tr>
+            <tr><td style="padding: 10px 0; color: #6b6b6b;">E-mail</td><td style="padding: 10px 0;">${normalizedEmail}</td></tr>
+          </table>
+          <a href="${approveUrl.toString()}" style="display: inline-block; background: #111; color: #fff; text-decoration: none; border-radius: 999px; padding: 14px 22px; font-size: 14px; font-weight: 500;">Aprovar e enviar código</a>
+          <p style="font-size: 12px; color: #8a8a8a; margin: 24px 0 0;">O link de aprovação expira em 24 horas.</p>
         </div>
       `,
     });
 
     if (error) {
       console.error("Resend error:", error);
-      return Response.json({ error: "Erro ao enviar e-mail. Tente novamente." }, { status: 500 });
+      return Response.json({ error: "Erro ao enviar solicitação. Tente novamente." }, { status: 500 });
     }
 
-    return Response.json({ ok: true });
+    return Response.json({ ok: true, requested: true });
   } catch (err) {
     console.error("send-otp error:", err);
     return Response.json({ error: "Erro interno." }, { status: 500 });
