@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from "next/image";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { ContactDrawer } from '@/components/ContactDrawer';
 import { AwareButton } from '@/components/AwareButton';
 
@@ -23,13 +24,13 @@ const tags = ["Gestão de Frotas", "B2B SaaS", "IA + Hardware", "Enterprise", "S
 const projectMeta = [
   { label: "Empresa", main: "infleet.com.br", sub: "" },
   { label: "Modelo", main: "SaaS B2B · Gestão de Frotas Enterprise", sub: "" },
+  { label: "Indústria", main: "Segurança e Telemetria Veicular", sub: "" },
+  { label: "Duração", main: "12 semanas", sub: "4 discovery + 8 build" },
   {
     label: "Time",
     main: "Product Manager",
     sub: "Product Designer · Tech Lead · Back-end e Front-end · Equipe de Hardware · Stakeholders",
   },
-  { label: "Indústria", main: "Segurança e Telemetria Veicular", sub: "" },
-  { label: "Duração", main: "12 semanas", sub: "4 discovery + 8 build" },
   {
     label: "Status",
     main: "Lançado para 2 clientes enterprise estratégicos",
@@ -60,6 +61,32 @@ const decisionItems = [
   ["Trade-off", "Funcional antes de polido", "Filtros avançados e refinamento visual viraram débito técnico. A prioridade era estabilizar o fluxo principal dentro do prazo."],
 ];
 
+const CRISIS_METRICS = [
+  {
+    id: "recognition",
+    before: "30%",
+    after: "65%",
+    label: "Identificação automática de motoristas",
+    withArrow: true,
+  },
+  {
+    id: "resolution",
+    before: "Dias",
+    after: "Horas",
+    label: "Tempo de resolução de falhas",
+    withArrow: true,
+  },
+  {
+    id: "support",
+    before: "",
+    after: "−50%",
+    label: "Tickets de suporte sobre identificação",
+    withArrow: false,
+  },
+] as const;
+
+const METRICS_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 function LogoMark() {
   return (
     <Image
@@ -81,12 +108,14 @@ function SectionTitle({
   children,
 }: {
   eyebrow: string;
-  title: string;
+  title: ReactNode;
   children?: ReactNode;
 }) {
+  const eyebrowLabel = eyebrow.replace(/^(\d{2})\s+/, "$1 · ");
+
   return (
     <header className="case-section-header">
-      <span>{eyebrow}</span>
+      <span>{eyebrowLabel}</span>
       <h2>{title}</h2>
       {children}
     </header>
@@ -194,6 +223,12 @@ export default function Portfolio() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const footerInnerRef = useRef<HTMLDivElement>(null);
   const sidebarFooterRef = useRef<HTMLDivElement>(null);
+  const crisisMetricsRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const crisisMetricsInView = useInView(crisisMetricsRef, {
+    once: true,
+    amount: 0.4,
+  });
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
@@ -402,7 +437,7 @@ export default function Portfolio() {
               </article>
             ))}
 
-            <article className="case-project-item case-project-item-wide case-project-role">
+            <article className="case-project-item case-project-role">
               <span>Meu papel</span>
               <p className="case-project-paragraph case-body">
                 Único designer no projeto, do mapeamento até o lançamento.
@@ -416,32 +451,64 @@ export default function Portfolio() {
         </section>
 
         <section id="crise" className="case-panel case-body">
-          <SectionTitle
-            eyebrow="03 A crise"
-            title="O sistema de reconhecimento facial falhava em 70% das viagens. Ninguém sabia por quê."
-          />
+          <div className="case-overview-top">
+            <div className="case-overview-top-header">
+              <SectionTitle
+                eyebrow="03 A crise"
+                title={
+                  <span className="case-crise-title">
+                    <span className="case-crise-title-line case-crise-title-primary">
+                      O sistema de reconhecimento facial
+                    </span>
+                    <span className="case-crise-title-line">
+                      <span className="case-crise-title-primary">
+                        falhava em{" "}
+                      </span>
+                      <span className="case-crise-title-accent">
+                        70% das viagens.
+                      </span>
+                    </span>
+                    <span className="case-crise-title-line case-crise-title-muted">
+                      Ninguém sabia por quê.
+                    </span>
+                  </span>
+                }
+              />
+            </div>
 
-          <div className="case-overview-body">
-            <p>
-              A Infleet é uma plataforma SaaS B2B de gestão de frotas. Cada
-              veículo possui uma câmera instalada no painel, conectada ao
-              sistema de telemetria. Ela grava a estrada, gera alertas de
-              segurança e identifica o motorista por reconhecimento facial.
-            </p>
-            <p>
-              Na prática, a identificação funcionava em apenas 30% das viagens.
-              Nos outros 70%, a plataforma simplesmente não mostrava quem estava
-              dirigindo. O campo de motorista ficava vazio, ou aparecia um
-              status genérico como &quot;veículo sem sinal&quot; na tela de monitoramento.
-              Sem qualquer indicação de que houve uma tentativa de identificação
-              que falhou, nem por quê.
-            </p>
-            <p>
-              A funcionalidade havia sido vendida para clientes enterprise com
-              prazo de entrega. Dois contratos de alto valor estavam em risco
-              iminente de cancelamento. A solução puramente técnica, melhorar a
-              precisão da IA, levaria meses sem garantia de resultado.
-            </p>
+            <div className="case-overview-top-content">
+              <article className="case-overview-intro">
+                <p>
+                  A Infleet é uma plataforma SaaS B2B de gestão de frotas. Cada
+                  veículo possui uma câmera instalada no painel, conectada ao
+                  sistema de telemetria. Essa câmera registra a estrada, gera
+                  alertas de segurança e identifica o motorista por
+                  reconhecimento facial.
+                </p>
+                <p>
+                  A funcionalidade havia sido vendida para clientes enterprise
+                  com prazo de entrega definido. Dois contratos de alto valor
+                  estavam em risco iminente de cancelamento.
+                </p>
+              </article>
+              <article className="case-overview-intro">
+                <p>
+                  Na prática, a identificação automática funcionava em apenas
+                  30% das viagens. Nos outros 70%, a plataforma não mostrava
+                  quem estava dirigindo.
+                </p>
+                <p>
+                  O campo do motorista aparecia vazio ou exibia um status
+                  genérico como &quot;veículo sem sinal&quot;, sem indicar se houve
+                  tentativa de identificação, falha no processo ou a causa do
+                  problema.
+                </p>
+                <p>
+                  Melhorar apenas a precisão da IA levaria meses e não
+                  oferecia garantia de resultado imediato.
+                </p>
+              </article>
+            </div>
           </div>
 
           <div className="case-overview-grid">
@@ -471,19 +538,97 @@ export default function Portfolio() {
             </article>
           </div>
 
-          <div className="case-metrics case-metrics--crise">
-            <article>
-              <strong>30%<span>→</span><em>65%</em></strong>
-              <p>Identificação automática de motoristas</p>
-            </article>
-            <article>
-              <strong>Dias<span>→</span><em>Horas</em></strong>
-              <p>Tempo de resolução de falhas</p>
-            </article>
-            <article>
-              <strong>−50%</strong>
-              <p>Tickets de suporte sobre identificação</p>
-            </article>
+          <div className="case-metrics-header">
+            <span>Principais métricas</span>
+          </div>
+
+          <div ref={crisisMetricsRef} className="case-metrics case-metrics--crise">
+            {CRISIS_METRICS.map((metric, index) => {
+              const cardDelay = index * 0.14;
+              const cardVisible = prefersReducedMotion || crisisMetricsInView;
+
+              return (
+                <motion.article
+                  key={metric.id}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+                  animate={{ opacity: cardVisible ? 1 : 0, y: cardVisible ? 0 : 40 }}
+                  transition={{
+                    delay: cardDelay,
+                    duration: 0.7,
+                    ease: METRICS_EASE,
+                  }}
+                >
+                  <motion.span
+                    className="case-metric-line"
+                    initial={prefersReducedMotion ? false : { scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: cardVisible ? 1 : 0, opacity: cardVisible ? 1 : 0 }}
+                    transition={{
+                      delay: cardDelay + 0.4,
+                      duration: 0.55,
+                      ease: METRICS_EASE,
+                    }}
+                  />
+
+                  <strong>
+                    {metric.before ? (
+                      <motion.span
+                        className="case-metric-before"
+                        initial={prefersReducedMotion ? false : { opacity: 0 }}
+                        animate={{ opacity: cardVisible ? 1 : 0 }}
+                        transition={{
+                          delay: cardDelay + 0.3,
+                          duration: 0.45,
+                          ease: METRICS_EASE,
+                        }}
+                      >
+                        {metric.before}
+                      </motion.span>
+                    ) : null}
+
+                    {metric.withArrow ? (
+                      <motion.span
+                        className="case-metric-arrow"
+                        initial={prefersReducedMotion ? false : { scale: 0, opacity: 0 }}
+                        animate={{ scale: cardVisible ? 1 : 0, opacity: cardVisible ? 1 : 0 }}
+                        transition={{
+                          delay: cardDelay + 0.5,
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 18,
+                        }}
+                      >
+                        →
+                      </motion.span>
+                    ) : null}
+
+                    <motion.span
+                      className="case-metric-after"
+                      initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
+                      animate={{ opacity: cardVisible ? 1 : 0, x: cardVisible ? 0 : -20 }}
+                      transition={{
+                        delay: cardDelay + 0.6,
+                        duration: 0.5,
+                        ease: METRICS_EASE,
+                      }}
+                    >
+                      {metric.after}
+                    </motion.span>
+                  </strong>
+
+                  <motion.p
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+                    animate={{ opacity: cardVisible ? 1 : 0, y: cardVisible ? 0 : 24 }}
+                    transition={{
+                      delay: cardDelay + 0.8,
+                      duration: 0.55,
+                      ease: METRICS_EASE,
+                    }}
+                  >
+                    {metric.label}
+                  </motion.p>
+                </motion.article>
+              );
+            })}
           </div>
         </section>
 
