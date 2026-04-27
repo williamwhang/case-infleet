@@ -86,6 +86,30 @@ const CRISIS_METRICS = [
 ] as const;
 
 const METRICS_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const METRIC_NEUTRAL = "#c7c7c7";
+const METRIC_ACCENT = "#2d62f2";
+
+function MetricArrowIcon() {
+  return (
+    <svg
+      width="44"
+      height="44"
+      viewBox="0 0 44 44"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M9 22H34M25 13L34 22L25 31"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function LogoMark() {
   return (
@@ -224,10 +248,15 @@ export default function Portfolio() {
   const footerInnerRef = useRef<HTMLDivElement>(null);
   const sidebarFooterRef = useRef<HTMLDivElement>(null);
   const crisisMetricsRef = useRef<HTMLDivElement>(null);
+  const crisisAnalysisRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const crisisMetricsInView = useInView(crisisMetricsRef, {
     once: true,
     amount: 0.4,
+  });
+  const isMetricsSectionActive = useInView(crisisAnalysisRef, {
+    amount: 0.08,
+    margin: "0px 0px -62% 0px",
   });
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
@@ -324,8 +353,11 @@ export default function Portfolio() {
   }
 
   return (
-    <main className="case-shell">
-      <aside className="case-sidebar" aria-label="Navegação do case">
+    <main className={`case-shell${isMetricsSectionActive ? " is-white-phase" : ""}`}>
+      <aside
+        className={`case-sidebar${isMetricsSectionActive ? " is-white-phase" : ""}`}
+        aria-label="Navegação do case"
+      >
         <div className="case-brand" aria-label="William Whang">
           <LogoMark />
           <span>William Whang</span>
@@ -511,7 +543,7 @@ export default function Portfolio() {
             </div>
           </div>
 
-          <div className="case-overview-grid">
+          <div ref={crisisAnalysisRef} className="case-overview-grid">
             <article className="case-overview-card">
               <h4>Desafio</h4>
               <p>
@@ -569,10 +601,11 @@ export default function Portfolio() {
                     }}
                   />
 
-                  <strong>
+                  <strong style={{ color: METRIC_NEUTRAL }}>
                     {metric.before ? (
                       <motion.span
                         className="case-metric-before"
+                        style={{ color: METRIC_NEUTRAL }}
                         initial={prefersReducedMotion ? false : { opacity: 0 }}
                         animate={{ opacity: cardVisible ? 1 : 0 }}
                         transition={{
@@ -588,6 +621,7 @@ export default function Portfolio() {
                     {metric.withArrow ? (
                       <motion.span
                         className="case-metric-arrow"
+                        style={{ color: METRIC_NEUTRAL }}
                         initial={prefersReducedMotion ? false : { scale: 0, opacity: 0 }}
                         animate={{ scale: cardVisible ? 1 : 0, opacity: cardVisible ? 1 : 0 }}
                         transition={{
@@ -597,12 +631,13 @@ export default function Portfolio() {
                           damping: 18,
                         }}
                       >
-                        →
+                        <MetricArrowIcon />
                       </motion.span>
                     ) : null}
 
                     <motion.span
                       className="case-metric-after"
+                      style={{ color: METRIC_ACCENT }}
                       initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
                       animate={{ opacity: cardVisible ? 1 : 0, x: cardVisible ? 0 : -20 }}
                       transition={{
@@ -654,11 +689,11 @@ export default function Portfolio() {
 
           <blockquote className="case-quote">
             <p>
-              &quot;Eu vejo o veículo rodando no mapa, mas não tenho como saber quem
+              Eu vejo o veículo rodando no mapa, mas não tenho como saber quem
               está dirigindo. A gente acaba abrindo ticket ou olhando em
-              planilhas.&quot;
+              planilhas.
             </p>
-            <cite>— Gestor de frota, durante o piloto</cite>
+            <cite>Gestor de frota, durante o piloto</cite>
           </blockquote>
         </section>
 
@@ -773,11 +808,23 @@ export default function Portfolio() {
 
           <div className="case-metrics">
             <article>
-              <strong>30%<span>→</span><em>65%</em></strong>
+              <strong>
+                30%
+                <span className="case-metric-arrow-inline" aria-hidden="true">
+                  <MetricArrowIcon />
+                </span>
+                <em>65%</em>
+              </strong>
               <p>Identificação automática</p>
             </article>
             <article>
-              <strong>Dias<span>→</span><em>Horas</em></strong>
+              <strong>
+                Dias
+                <span className="case-metric-arrow-inline" aria-hidden="true">
+                  <MetricArrowIcon />
+                </span>
+                <em>Horas</em>
+              </strong>
               <p>Tempo de resolução</p>
             </article>
             <article>
