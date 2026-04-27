@@ -71,6 +71,7 @@ img {
   --case-line: #c8c8c8;
   --case-blue: #3a5bd9;
   --case-muted: #777;
+  --case-body: #444;
   --case-spa-h: 65px;
   min-height: 100vh;
   display: grid;
@@ -1757,7 +1758,7 @@ body.drawer-open {
 }
 
 .case-overview-intro p {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   color: #444;
   margin: 0;
@@ -1790,10 +1791,10 @@ body.drawer-open {
 
 .case-overview-card p {
   font-size: 15px;
-  line-height: 1.65;
-  color: #111;
+  line-height: 1.6;
+  color: #444;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: normal;
   margin: 0;
 }
 
@@ -1815,7 +1816,7 @@ body.drawer-open {
 .case-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 64px;
+  column-gap: clamp(20px, 3vw, 56px);
   row-gap: 40px;
   margin-top: 0;
   margin-bottom: 48px;
@@ -1830,7 +1831,7 @@ body.drawer-open {
 
 .case-metrics strong {
   color: #000;
-  font-size: clamp(34px, 4.6vw, 72px);
+  font-size: clamp(22px, 2.8vw, 46px);
   line-height: 1;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -1849,17 +1850,17 @@ body.drawer-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: clamp(18px, 1.9vw, 30px);
+  height: clamp(18px, 1.9vw, 30px);
   margin: 0 0.14em;
   padding: 0;
   color: #cfcfcf;
-  transform: translateY(4px);
+  transform: translateY(0.12em);
 }
 
 .case-metric-arrow-inline svg {
-  width: 36px;
-  height: 36px;
+  width: clamp(18px, 1.9vw, 30px);
+  height: clamp(18px, 1.9vw, 30px);
   display: block;
   overflow: visible;
 }
@@ -1879,7 +1880,7 @@ body.drawer-open {
 
 .case-metrics p {
   max-width: 240px;
-  color: var(--case-body-muted, #6b6b6b);
+  color: #444;
   font-size: 15px;
   line-height: 1.35;
 }
@@ -1901,6 +1902,7 @@ body.drawer-open {
   align-items: flex-end;
   flex-wrap: nowrap;
   color: #c7c7c7;
+  font-size: clamp(22px, 2.8vw, 46px);
   font-weight: 500;
   letter-spacing: -0.025em;
   white-space: nowrap;
@@ -1923,12 +1925,12 @@ body.drawer-open {
   display: inline-flex;
   align-items: flex-end;
   justify-content: center;
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
+  width: clamp(18px, 1.9vw, 30px);
+  min-width: clamp(18px, 1.9vw, 30px);
+  height: clamp(18px, 1.9vw, 30px);
   margin: 0 0.14em;
   color: #cfcfcf;
-  transform: translateY(4px);
+  transform: translateY(0.12em);
   transform-origin: center;
   flex-shrink: 0;
   line-height: 0;
@@ -1936,8 +1938,8 @@ body.drawer-open {
 }
 
 .case-metrics--crise .case-metric-arrow svg {
-  width: 36px;
-  height: 36px;
+  width: clamp(18px, 1.9vw, 30px);
+  height: clamp(18px, 1.9vw, 30px);
   display: block;
   overflow: visible;
 }
@@ -1964,7 +1966,7 @@ body.drawer-open {
   font-size: 13px;
   line-height: 1.2;
   white-space: normal;
-  color: #6b6b6b;
+  color: #444;
 }
 
 /* ── Facts ───────────────────────────────────────── */
@@ -2003,7 +2005,7 @@ body.drawer-open {
 .case-footer-trigger {
   display: block;
   font-size: clamp(36px, 5.8vw, 74px);
-  font-weight: 700;
+  font-weight: 400;
   line-height: 0.95;
   letter-spacing: -0.04em;
   color: #000;

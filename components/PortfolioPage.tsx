@@ -851,7 +851,7 @@ export default function Portfolio() {
               Entre em contato
             </button>
             <div className="case-footer-meta">
-              <p>© 2026 William Whang — Todos os direitos reservados</p>
+              <p>© 2026 · William Whang · Todos os direitos reservados</p>
               <span>Conceito, design e código por mim</span>
             </div>
           </div>
